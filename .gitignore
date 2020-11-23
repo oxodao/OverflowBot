@@ -1,0 +1,8 @@
+.env
+config.json
+__debug_bin
+cours.csv
+sounds/
+overflow-bot
+SQL/Commands.sql
+SQL/Sounds.sql
