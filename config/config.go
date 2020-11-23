@@ -21,6 +21,7 @@ type DiscordConfig struct {
 }
 
 type WebConfig struct {
+	Url  string `json:"url"`
 	Port string `json:"port"`
 }
 
@@ -43,6 +44,10 @@ func Load() (*Config, error) {
 	err = json.Unmarshal(str, &cfg)
 	if err != nil {
 		return nil, err
+	}
+
+	if cfg.Web.Url[len(cfg.Web.Url)-1:] != "/" {
+		cfg.Web.Url = cfg.Web.Url + "/"
 	}
 
 	return &cfg, nil
