@@ -3,10 +3,10 @@
     <h1>Mettre à jours les cours</h1>
     <p>Cette page permet de mettre à jour la commande cours. Téléverser le fichier csv téléchargeable sur votre planning sur l'ENF.</p>
 
-    <input type="file" id="planning" accept="text/csv"/>
+    <input type="file" ref="planning" accept="text/csv"/>
 
-    <span class="error" v-if="Status !== 'NONE' && Status !== 'SUCCESS'">{{Status}}</span>
-    <span class="error" v-if="Status === 'SUCCESS'">{{Status}}</span>
+    <span class="error" v-if="Status !== 'NONE' && Status !== 'SUCCESS'">{{Status.length > 0 ? Status : 'Bad request'}}</span>
+    <span class="success" v-if="Status === 'SUCCESS'">{{Status}}</span>
 
     <input class="discord" type="submit"/>
   </form>
@@ -24,19 +24,26 @@ export default {
   },
   methods: {
     submitForm() {
-      this.data.Status = 'NONE';
+      let currThis = this;
+      currThis.Status = 'NONE';
 
-      let file = this.$refs.plannning.files[0];
+      let file = this.$refs.planning.files[0];
       let fd = new FormData();
       fd.append('file', file);
 
-      axios.post('/api/cours', fd, { headers: { 'Content-Type': 'multipart/form-data'}})
+      axios({
+        method: 'post',
+        url: '/api/cours',
+        data: fd,
+        headers: { 'Content-Type': 'multipart/form-data', 'Authorization': this.$store.state.User.token }
+      })
       .then(() => {
-        this.data.Status = 'SUCCESS';
+        currThis.Status = 'SUCCESS';
       })
       .catch(e => {
         if (e.response)
-          this.data.Status = e.response.data;
+          currThis.Status = e.response.data;
+        console.log(e)
       })
     }
   }
@@ -54,4 +61,22 @@ p {
   width: 350px;
   text-align: justify;
 }
+
+.success, .error {
+  margin: 1em;
+  padding: 1em 3em 1em 3em;
+}
+
+.success {
+  background: #5cb85c;
+  border: 2px solid #4a934a;
+  color: #276e37;
+}
+
+.error {
+  background: #b71c1c;
+  border: 2px solid #EF5350;
+  color: #ffcdd2;
+}
+
 </style>

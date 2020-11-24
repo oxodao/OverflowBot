@@ -1,17 +1,9 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import axios from 'axios';
-
 Vue.use(Vuex)
 
 export const LS_ITEM_NAME = "overflowbot-token";
-
-export const setHeaders = (token) => {
-    axios.interceptors.request.use(config => {
-        config.headers.Authorization = token;
-    });
-}
 
 export default new Vuex.Store({
     state: {
@@ -19,22 +11,44 @@ export default new Vuex.Store({
             id: null,
             username: null,
             token: null,
-        }
+        },
+        Sounds: []
     },
     mutations: {
         setUser: (state, payload) => {
             state.User = payload;
+        },
+        setSounds: (state, payload) => {
+            state.Sounds = payload;
+        },
+        addSound: (state, sound) => {
+            state.Sounds.push(sound);
+        },
+        editSound: (state, sound) => {
+            let j = -1;
+            for (let i = 0; i < state.Sounds.length; i++) {
+                if (state.Sounds[i].id === sound.id) {
+                    j = i;
+                    break;
+                }
+            }
+
+            if (j !== -1) {
+                Vue.set(state.Sounds, j, sound);
+            }
+        },
+        deleteSound: (state, id) => {
+            state.Sounds = state.Sounds.filter(e => e.id !== id);
         }
     },
     actions: {
         setUser: ({commit}, user) => {
             localStorage.setItem(LS_ITEM_NAME, user.token);
-            setHeaders(user.token);
             commit('setUser', user);
         }
     },
     getters: {
-      isLoggedIn: state => (!!state.User && !!state.User.id && state.User.id.length > 0)
+        isLoggedIn: state => (!!state.User && !!state.User.id && state.User.id.length > 0)
     },
     modules: {
     }

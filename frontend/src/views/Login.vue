@@ -11,7 +11,6 @@ export default {
   mounted() {
     const params = this.$route.params;
     if (!!params.id && !!params.username && !!params.token) {
-      console.log("Setting user: ", params)
       this.$store.dispatch('setUser', params);
       this.$router.push({name: 'Home' })
     }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/oxodao/overflow-bot/models"
 	"github.com/oxodao/overflow-bot/services"
 )
 
@@ -34,6 +35,6 @@ func (c CoursCommand) HelpMessage() string {
 	return "Liste le cours précédent et le suivant"
 }
 
-func formatCours(c Cours) string {
+func formatCours(c models.Cours) string {
 	return "*" + c.Name + "*\n\tLe " + c.Date.Format("02/01/2006") + " de " + c.Date.Format("15:05") + " à " + c.End.Format("15:05")
 }

@@ -1,23 +1,20 @@
-package main
+package web
 
 import (
+	"bytes"
 	"encoding/csv"
 	"io"
-	"os"
+	"net/http"
 	"strings"
 
 	"github.com/oxodao/overflow-bot/services"
 )
 
-func FetchCours(prv *services.Provider, fileToLoad string) error {
-	f, err := os.Open(fileToLoad)
-	if err != nil {
-		return err
-	}
-
+func FetchCours(prv *services.Provider, buf bytes.Buffer) error {
 	prv.DB.Exec("DROP FROM cours")
 
-	r := csv.NewReader(f)
+	reader := strings.NewReader(buf.String())
+	r := csv.NewReader(reader)
 	firstLine := true
 	for {
 		record, err := r.Read()
@@ -39,10 +36,34 @@ func FetchCours(prv *services.Provider, fileToLoad string) error {
 		end := ToRealDate(record[3]) + " " + record[4]
 
 		prv.DB.Exec(`INSERT INTO COURS(COURS_NAME, COURS_DATE, COURS_END) VALUES ($1, $2, $3)`, nom, start, end)
-		//fmt.Printf("Cours: %v @ %v jusque %v\n", nom, start, end)
 	}
 
 	return nil
+}
+
+func FetchCoursHandler(prv *services.Provider) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		r.ParseMultipartForm(10 << 20)
+
+		file, _, err := r.FormFile("file")
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		defer file.Close()
+
+		var buf bytes.Buffer
+		io.Copy(&buf, file)
+
+		err = FetchCours(prv, buf)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		w.WriteHeader(http.StatusCreated)
+	}
 }
 
 func ToRealDate(dateCnam string) string {

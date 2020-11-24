@@ -2,9 +2,9 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import axios from "axios";
 
-import {LS_ITEM_NAME, setHeaders} from './store';
+import {LS_ITEM_NAME} from './store';
+import axios from "axios";
 
 Vue.config.productionTip = false
 
@@ -13,8 +13,7 @@ const token = localStorage.getItem(LS_ITEM_NAME);
 if (token !== null) {
   axios.get("/api/auth/validate", { headers: { "Authorization": token } })
       .then((resp) => {
-          (new Vue({store})).$store.commit('setUser', resp.data);
-          setHeaders(token);
+          new Vue({store}).$store.commit('setUser', resp.data);
           InitializeVue();
       })
       .catch(() => {

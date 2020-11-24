@@ -31,6 +31,15 @@ func Initialize(prv *services.Provider) {
 	api.HandleFunc("/auth/callback", callbackOauth(prv))
 	api.HandleFunc("/auth/validate", validateToken(prv))
 
+	// Actual api
+	api.HandleFunc("/cours", FetchCoursHandler(prv))
+	api.HandleFunc("/sounds", FetchSounds(prv))
+
+	api.HandleFunc("/sound", CreateSound(prv)).Methods(http.MethodPost)
+	api.HandleFunc("/sound/{id}", HearSound(prv)).Methods(http.MethodGet) // Not used yet, too lazy to it in VueJS (requires a service worker to add the token to the request + needs to forward the token to the service worker)
+	api.HandleFunc("/sound/{id}", UpdateSound(prv)).Methods(http.MethodPut)
+	api.HandleFunc("/sound/{id}", DeleteSound(prv)).Methods(http.MethodDelete)
+
 	srv := &http.Server{
 		Addr:         "0.0.0.0:" + prv.Config.Web.Port,
 		Handler:      r,

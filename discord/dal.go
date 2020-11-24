@@ -1,6 +1,9 @@
 package discord
 
-import "github.com/oxodao/overflow-bot/services"
+import (
+	"github.com/oxodao/overflow-bot/models"
+	"github.com/oxodao/overflow-bot/services"
+)
 
 func SelectCustomCommands(prv *services.Provider) ([]Command, error) {
 	cmds := []Command{}
@@ -19,8 +22,8 @@ func SelectCustomCommands(prv *services.Provider) ([]Command, error) {
 	return cmds, nil
 }
 
-func SelectCours(prv *services.Provider) ([]Cours, error) {
-	cours := []Cours{}
+func SelectCours(prv *services.Provider) ([]models.Cours, error) {
+	cours := []models.Cours{}
 
 	rows, err := prv.DB.Queryx(`
 	(
@@ -45,7 +48,7 @@ func SelectCours(prv *services.Provider) ([]Cours, error) {
 	}
 
 	for rows.Next() {
-		c := Cours{}
+		c := models.Cours{}
 		rows.StructScan(&c)
 		cours = append(cours, c)
 	}
@@ -53,15 +56,15 @@ func SelectCours(prv *services.Provider) ([]Cours, error) {
 	return cours, nil
 }
 
-func SelectSounds(prv *services.Provider) ([]Sound, error) {
+func SelectSounds(prv *services.Provider) ([]models.Sound, error) {
 	rows, err := prv.DB.Queryx("SELECT SOUND_NAME, SOUND_FILE, SOUND_DESC FROM SOUNDS ORDER BY SOUND_NAME")
 	if err != nil {
-		return []Sound{}, err
+		return []models.Sound{}, err
 	}
 
-	var sounds []Sound
+	var sounds []models.Sound
 	for rows.Next() {
-		s := Sound{}
+		s := models.Sound{}
 		rows.StructScan(&s)
 		sounds = append(sounds, s)
 	}
@@ -69,13 +72,13 @@ func SelectSounds(prv *services.Provider) ([]Sound, error) {
 	return sounds, nil
 }
 
-func SelectSound(prv *services.Provider, name string) (*Sound, error) {
+func SelectSound(prv *services.Provider, name string) (*models.Sound, error) {
 	row := prv.DB.QueryRowx("SELECT SOUND_NAME, SOUND_FILE, SOUND_DESC FROM SOUNDS WHERE LOWER(SOUND_NAME) = $1", name)
 	if row.Err() != nil {
 		return nil, row.Err()
 	}
 
-	var sound Sound
+	var sound models.Sound
 	err := row.StructScan(&sound)
 	return &sound, err
 }

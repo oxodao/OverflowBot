@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 
 	"github.com/oxodao/overflow-bot/config"
@@ -28,16 +27,6 @@ func main() {
 	prv, err := services.NewProvider(cfg, VERSION, AUTHOR)
 	if err != nil {
 		panic(err)
-	}
-
-	GETCOURS := false
-	if len(os.Args) > 1 && strings.ToLower(os.Args[1]) == "import_cours" {
-		GETCOURS = true
-	}
-
-	if GETCOURS {
-		FetchCours(prv, "cours.csv")
-		return
 	}
 
 	if len(cfg.Discord.Token) > 0 {

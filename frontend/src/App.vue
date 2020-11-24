@@ -54,7 +54,9 @@ export default {
 * {
   padding: 0;
   margin: 0;
+  box-sizing: border-box;
 }
+
 a.discord, button, input[type="submit"] {
   color: white;
   text-decoration: none;

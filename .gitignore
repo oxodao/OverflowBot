@@ -3,6 +3,7 @@ config.json
 __debug_bin
 cours.csv
 sounds/
+sounds_bak/
 overflow-bot
 SQL/Commands.sql
 SQL/Sounds.sql
