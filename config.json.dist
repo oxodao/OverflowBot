@@ -1,0 +1,14 @@
+{
+    "db": "postgres://overflowbot:overflowbot@postgres:5432/overflowbot?sslmode=disable",
+    "discord": {
+        "client_id": "",
+        "client_secret": "",
+        "token": ""
+    },
+    "web": {
+        "url": "https://overflowbot.drx/api",
+        "port": "8249",
+        "_comment": "Discord IDs of the allowed users",
+        "allowedUsers": [ ]
+    }
+}
