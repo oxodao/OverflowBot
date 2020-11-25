@@ -9,12 +9,10 @@ services:
                         POSTGRES_DB: overflowbot
                         PGDATA: /var/lib/postgresql/data/pgdata
                 volumes:
-                        - pgdata
-                ports:
-                        - 5432:5432
+                        - ./database:/var/lib/postgresql/data/pgdata
 
         bot:
-                image: test
+                image: oxodao/overflowbot:latest
                 restart: unless-stopped
                 volumes:
                         - ./sounds:/app/sounds
@@ -28,6 +26,3 @@ services:
                 restart: always
                 ports:
                         - 8000:8080
-
-volumes:
-        pgdata:

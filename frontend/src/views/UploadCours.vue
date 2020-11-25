@@ -43,7 +43,6 @@ export default {
       .catch(e => {
         if (e.response)
           currThis.Status = e.response.data;
-        console.log(e)
       })
     }
   }

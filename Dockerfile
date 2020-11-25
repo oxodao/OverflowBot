@@ -12,7 +12,7 @@ ENV GO111MODULE=on \
 
 WORKDIR /app
 COPY . .
-COPY --from=build-frontend /app/dist /frontend/dist
+COPY --from=build-frontend /app/dist /app/frontend/dist
 
 RUN go mod download
 RUN go get github.com/markbates/pkger/cmd/pkger

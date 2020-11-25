@@ -51,10 +51,9 @@ export default {
           currThis.$store.commit('addCommand', e.data);
           currThis.hideDialog();
         })
-        .catch((e) => {
+        .catch(() => {
           currThis.state = "ERROR";
           // @TODO: Display error
-          console.log(e)
         })
     },
     hideFrame(e) {
