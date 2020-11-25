@@ -12,7 +12,8 @@ export default new Vuex.Store({
             username: null,
             token: null,
         },
-        Sounds: []
+        Sounds: [],
+        Commands: []
     },
     mutations: {
         setUser: (state, payload) => {
@@ -39,6 +40,28 @@ export default new Vuex.Store({
         },
         deleteSound: (state, id) => {
             state.Sounds = state.Sounds.filter(e => e.id !== id);
+        },
+        setCommands: (state, payload) => {
+            state.Commands = payload;
+        },
+        addCommand: (state, sound) => {
+            state.Commands.push(sound);
+        },
+        editCommand: (state, sound) => {
+            let j = -1;
+            for (let i = 0; i < state.Commands.length; i++) {
+                if (state.Commands[i].id === sound.id) {
+                    j = i;
+                    break;
+                }
+            }
+
+            if (j !== -1) {
+                Vue.set(state.Commands, j, sound);
+            }
+        },
+        deleteCommand: (state, id) => {
+            state.Commands = state.Commands.filter(e => e.id !== id);
         }
     },
     actions: {

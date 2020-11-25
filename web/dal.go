@@ -63,3 +63,32 @@ func getSound(prv *services.Provider, id int) (models.Sound, error) {
 
 	return s, err
 }
+
+func listCommands(prv *services.Provider) ([]models.Command, error) {
+	var cmds []models.Command
+
+	rows, err := prv.DB.Queryx("SELECT COMMAND_ID, COMMAND_NAME, COMMAND_HELP, COMMAND_RESPONSE FROM CUSTOM_COMMANDS")
+	if err != nil {
+		return cmds, err
+	}
+
+	for rows.Next() {
+		var c models.Command
+		rows.StructScan(&c)
+		cmds = append(cmds, c)
+	}
+
+	return cmds, nil
+}
+
+func getCommand(prv *services.Provider, id int) (models.Command, error) {
+	row := prv.DB.QueryRowx("SELECT COMMAND_ID, COMMAND_NAME, COMMAND_HELP, COMMAND_RESPONSE FROM CUSTOM_COMMANDS WHERE COMMAND_ID = $1", id)
+	if row.Err() != nil {
+		return models.Command{}, row.Err()
+	}
+
+	var c models.Command
+	err := row.StructScan(&c)
+
+	return c, err
+}

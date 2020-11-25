@@ -6,6 +6,7 @@ import Home from '@/views/Home.vue'
 import Login from "@/views/Login";
 import UploadCours from "@/views/UploadCours";
 import Soundboard from "@/views/Sounds";
+import CustomCommands from "@/views/CustomCommands";
 
 Vue.use(VueRouter)
 
@@ -35,6 +36,12 @@ const routes = [
     path: '/sound',
     name: 'Soundboard',
     component: Soundboard,
+    beforeEnter: isAuthenticated
+  },
+  {
+    path: '/commands',
+    name: 'Commandes',
+    component: CustomCommands,
     beforeEnter: isAuthenticated
   },
   {

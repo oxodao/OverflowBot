@@ -3,6 +3,7 @@
     <router-link to="/">Home</router-link>
     <router-link to="/cours">Cours</router-link>
     <router-link to="/sound">Soundboard</router-link>
+    <router-link to="/commands">Commandes</router-link>
   </nav>
 </template>
 

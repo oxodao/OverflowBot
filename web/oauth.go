@@ -55,6 +55,19 @@ func callbackOauth(prv *services.Provider) http.HandlerFunc {
 			return
 		}
 
+		found := false
+		for _, allowedUser := range prv.Config.Web.AllowedUsers {
+			if allowedUser == user.ID {
+				found = true
+			}
+		}
+
+		if !found {
+			w.WriteHeader(http.StatusForbidden)
+			w.Write([]byte("This user is not allowed to used the admin panel"))
+			return
+		}
+
 		err = createOrUpdateUser(prv, &user)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

@@ -21,8 +21,9 @@ type DiscordConfig struct {
 }
 
 type WebConfig struct {
-	Url  string `json:"url"`
-	Port string `json:"port"`
+	Url          string   `json:"url"`
+	Port         string   `json:"port"`
+	AllowedUsers []string `json:"allowedUsers"`
 }
 
 func (c *Config) Save() error {

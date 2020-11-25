@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/markbates/pkger"
 	"golang.org/x/oauth2"
 
 	"github.com/oxodao/overflow-bot/services"
@@ -39,6 +40,13 @@ func Initialize(prv *services.Provider) {
 	api.HandleFunc("/sound/{id}", HearSound(prv)).Methods(http.MethodGet) // Not used yet, too lazy to it in VueJS (requires a service worker to add the token to the request + needs to forward the token to the service worker)
 	api.HandleFunc("/sound/{id}", UpdateSound(prv)).Methods(http.MethodPut)
 	api.HandleFunc("/sound/{id}", DeleteSound(prv)).Methods(http.MethodDelete)
+
+	api.HandleFunc("/commands", FetchCommand(prv))
+	api.HandleFunc("/command", CreateCommand(prv)).Methods(http.MethodPost)
+	api.HandleFunc("/command/{id}", UpdateCommand(prv)).Methods(http.MethodPut)
+	api.HandleFunc("/command/{id}", DeleteCommand(prv)).Methods(http.MethodDelete)
+
+	r.PathPrefix("/").Handler(http.StripPrefix("/", http.FileServer(pkger.Dir("/frontend/dist"))))
 
 	srv := &http.Server{
 		Addr:         "0.0.0.0:" + prv.Config.Web.Port,

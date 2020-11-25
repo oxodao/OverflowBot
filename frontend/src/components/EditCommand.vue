@@ -1,14 +1,17 @@
 <template>
-  <div id="EditSound" @click="hideFrame" ref="container">
+  <div id="EditCommand" @click="hideFrame" ref="container">
     <form v-on:submit.prevent="submit">
-      <h1>Editer un son</h1>
+      <h1>Editer une commande</h1>
 
       <div>
-        <label for="name">Nom / Commande: </label>
-        <input type="text" ref="name" id="name" v-model="name" required :disabled="state === 'UPLOADING'"/>
+        <label for="name">Commande: </label>
+        <input type="text" id="name" v-model="name" required :disabled="state === 'UPLOADING'"/>
 
-        <label for="desc">Description:</label>
-        <textarea id="desc" ref="desc" rows="5" v-model="desc" required :disabled="state === 'UPLOADING'"/>
+        <label for="help">Help text: </label>
+        <input type="text" id="help" v-model="help" required :disabled="state === 'UPLOADING'"/>
+
+        <label for="resp">Description:</label>
+        <textarea id="resp" rows="5" v-model="resp" required :disabled="state === 'UPLOADING'"/>
 
         <span v-if="state === 'UPLOADING'">Uploading...</span>
         <span class="error" v-if="state === 'ERROR'">An error occured!</span>
@@ -23,13 +26,14 @@
 import axios from 'axios';
 
 export default {
-  name: 'EditSound',
-  props: ['hide', 'Sound'],
+  name: 'EditCommand',
+  props: ['hide', 'Command'],
   data: function(){
       return {
         state: 'none',
-        name: this.Sound.name,
-        desc: this.Sound.desc,
+        name: this.Command.name,
+        help: this.Command.help,
+        resp: this.Command.resp,
       }
   },
   methods: {
@@ -38,12 +42,13 @@ export default {
 
       let fd = new FormData();
       fd.append('name', this.name);
-      fd.append('desc', this.desc);
+      fd.append('help', this.help);
+      fd.append('resp', this.resp);
 
-      axios.put('/api/sound/' + this.Sound.id, fd, { headers: { "Content-Type": "multipart/form-data", "Authorization": this.$store.state.User.token } })
+      axios.put('/api/command/' + this.Command.id, fd, { headers: { "Content-Type": "multipart/form-data", "Authorization": this.$store.state.User.token } })
         .then((e) => {
           currThis.state = "SUCCESS";
-          currThis.$store.commit('editSound', e.data);
+          currThis.$store.commit('editCommand', e.data);
           currThis.hideDialog();
         })
         .catch((e) => {
@@ -58,7 +63,8 @@ export default {
     },
     hideDialog(){
       this.name = '';
-      this.desc = '';
+      this.help = '';
+      this.resp = '';
       this.hide();
     }
   }
@@ -67,7 +73,7 @@ export default {
 
 <style lang="scss" scoped>
 
-#EditSound {
+#EditCommand {
   position: absolute;
   top: 0;
   left: 0;

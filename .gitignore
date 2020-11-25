@@ -7,3 +7,4 @@ sounds_bak/
 overflow-bot
 SQL/Commands.sql
 SQL/Sounds.sql
+pkged.go
