@@ -2,13 +2,13 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/oxodao/overflow-bot/log"
 	"github.com/oxodao/overflow-bot/models"
 	"github.com/oxodao/overflow-bot/services"
 )
@@ -18,6 +18,7 @@ func FetchSounds(prv *services.Provider) http.HandlerFunc {
 		sounds, err := listSounds(prv)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
 
@@ -36,19 +37,21 @@ func CreateSound(prv *services.Provider) http.HandlerFunc {
 		file, _, err := r.FormFile("file")
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(err)
 			return
 		}
 
 		if len(name) == 0 || len(desc) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(err)
 			return
 		}
 
 		row := prv.DB.QueryRowx(`INSERT INTO SOUNDS(SOUND_NAME, SOUND_FILE, SOUND_DESC) VALUES ($1, $2, $3) RETURNING SOUND_ID, SOUND_NAME, SOUND_FILE, SOUND_DESC`, name, name+".mp3", desc)
 		if row.Err() != nil {
 			// @TODO: check for conflict and tell the user
-			fmt.Println(row.Err())
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(row.Err())
 			return
 		}
 
@@ -56,6 +59,7 @@ func CreateSound(prv *services.Provider) http.HandlerFunc {
 		err = row.StructScan(&snd)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
 
@@ -63,6 +67,7 @@ func CreateSound(prv *services.Provider) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Can't create file"))
+			log.Error(err)
 			return
 		}
 		defer dest.Close()
@@ -70,12 +75,14 @@ func CreateSound(prv *services.Provider) http.HandlerFunc {
 		_, err = io.Copy(dest, file)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
 
 		bytes, err := json.Marshal(&snd)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
 
@@ -92,6 +99,7 @@ func HearSound(prv *services.Provider) http.HandlerFunc {
 		s, err := getSound(prv, idInt)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
 
@@ -105,6 +113,7 @@ func UpdateSound(prv *services.Provider) http.HandlerFunc {
 		err := r.ParseMultipartForm(2 << 20)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(err)
 			return
 		}
 
@@ -119,12 +128,14 @@ func UpdateSound(prv *services.Provider) http.HandlerFunc {
 			WHERE SOUND_ID = $1`, id, name, desc)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(err)
 			return
 		}
 
 		ra, err := res.RowsAffected()
 		if err != nil || ra == 0 {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(err)
 			return
 		}
 
@@ -132,6 +143,7 @@ func UpdateSound(prv *services.Provider) http.HandlerFunc {
 		s, err := getSound(prv, idInt)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
 
@@ -146,6 +158,7 @@ func DeleteSound(prv *services.Provider) http.HandlerFunc {
 		row := prv.DB.QueryRowx("SELECT SOUND_ID, SOUND_NAME, SOUND_FILE, SOUND_DESC FROM SOUNDS WHERE SOUND_ID = $1", id)
 		if row.Err() != nil {
 			w.WriteHeader(http.StatusNotFound)
+			log.Error(row.Err())
 			return
 		}
 
@@ -156,6 +169,7 @@ func DeleteSound(prv *services.Provider) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Can't remove the file!"))
+			log.Error(err)
 			return
 		}
 
@@ -163,6 +177,7 @@ func DeleteSound(prv *services.Provider) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Can't remove the database entry!"))
+			log.Error(err)
 			return
 		}
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/oxodao/overflow-bot/log"
 	"github.com/oxodao/overflow-bot/services"
 )
 
@@ -36,6 +37,7 @@ func authedMiddleware(prv *services.Provider) func(http.Handler) http.Handler {
 			user, err := findUserByToken(prv, token)
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
+				log.Error(err)
 				return
 			}
 

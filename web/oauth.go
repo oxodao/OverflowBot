@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/oxodao/overflow-bot/log"
 	"github.com/oxodao/overflow-bot/services"
 	"golang.org/x/oauth2"
 )
@@ -24,6 +25,7 @@ func callbackOauth(prv *services.Provider) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
+			log.Error(err)
 			return
 		}
 
@@ -33,6 +35,7 @@ func callbackOauth(prv *services.Provider) http.HandlerFunc {
 			w.WriteHeader(http.StatusInternalServerError)
 			if err != nil {
 				w.Write([]byte(err.Error()))
+				log.Error(err)
 			} else {
 				w.Write([]byte(res.Status))
 			}
@@ -44,6 +47,7 @@ func callbackOauth(prv *services.Provider) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
+			log.Error(err)
 			return
 		}
 
@@ -52,6 +56,7 @@ func callbackOauth(prv *services.Provider) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Error parsing discord's response"))
+			log.Error(err)
 			return
 		}
 
@@ -65,6 +70,7 @@ func callbackOauth(prv *services.Provider) http.HandlerFunc {
 		if !found {
 			w.WriteHeader(http.StatusForbidden)
 			w.Write([]byte("This user is not allowed to used the admin panel"))
+			log.Error("User not allowed to use panel")
 			return
 		}
 
@@ -72,6 +78,7 @@ func callbackOauth(prv *services.Provider) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Can't login to the server: " + err.Error()))
+			log.Error(err)
 			return
 		}
 
@@ -85,6 +92,7 @@ func validateToken(prv *services.Provider) http.HandlerFunc {
 		bts, err := json.Marshal(user)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
 

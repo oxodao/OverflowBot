@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/oxodao/overflow-bot/log"
 	"github.com/oxodao/overflow-bot/services"
 )
 
@@ -23,6 +24,7 @@ func FetchCours(prv *services.Provider, buf bytes.Buffer) error {
 		}
 
 		if err != nil {
+			log.Error(err)
 			return err
 		}
 
@@ -48,6 +50,7 @@ func FetchCoursHandler(prv *services.Provider) http.HandlerFunc {
 		file, _, err := r.FormFile("file")
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(err)
 			return
 		}
 
@@ -59,6 +62,7 @@ func FetchCoursHandler(prv *services.Provider) http.HandlerFunc {
 		err = FetchCours(prv, buf)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(err)
 			return
 		}
 

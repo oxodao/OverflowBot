@@ -2,11 +2,11 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/oxodao/overflow-bot/log"
 	"github.com/oxodao/overflow-bot/models"
 	"github.com/oxodao/overflow-bot/services"
 )
@@ -33,16 +33,17 @@ func CreateCommand(prv *services.Provider) http.HandlerFunc {
 		help := r.Form.Get("help")
 		resp := r.Form.Get("resp")
 
-		if len(name) == 0 || len(resp) == 0 {
+		if len(name) == 0 || len(help) == 0 || len(resp) == 0 {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error("Trying to create a command with no name/help/response")
 			return
 		}
 
 		row := prv.DB.QueryRowx(`INSERT INTO CUSTOM_COMMANDS(COMMAND_NAME, COMMAND_HELP, COMMAND_RESPONSE) VALUES ($1, $2, $3) RETURNING COMMAND_ID, COMMAND_NAME, COMMAND_HELP, COMMAND_RESPONSE`, name, help, resp)
 		if row.Err() != nil {
 			// @TODO: check for conflict and tell the user
-			fmt.Println(row.Err())
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(row.Err())
 			return
 		}
 
@@ -50,14 +51,18 @@ func CreateCommand(prv *services.Provider) http.HandlerFunc {
 		err := row.StructScan(&cmd)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
 
 		bytes, err := json.Marshal(&cmd)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
+
+		prv.ReloadCommands <- true
 
 		w.WriteHeader(http.StatusCreated)
 		w.Write(bytes)
@@ -70,6 +75,7 @@ func UpdateCommand(prv *services.Provider) http.HandlerFunc {
 		err := r.ParseMultipartForm(2 << 20)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(err)
 			return
 		}
 
@@ -86,12 +92,18 @@ func UpdateCommand(prv *services.Provider) http.HandlerFunc {
 			WHERE COMMAND_ID = $1`, id, name, help, resp)
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
+			log.Error(err)
 			return
 		}
 
 		ra, err := res.RowsAffected()
 		if err != nil || ra == 0 {
 			w.WriteHeader(http.StatusBadRequest)
+			if ra == 0 {
+				log.Error("No rows affected")
+			} else {
+				log.Error(err)
+			}
 			return
 		}
 
@@ -99,8 +111,11 @@ func UpdateCommand(prv *services.Provider) http.HandlerFunc {
 		c, err := getCommand(prv, idInt)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			log.Error(err)
 			return
 		}
+
+		prv.ReloadCommands <- true
 
 		str, _ := json.Marshal(c)
 		w.Write([]byte(str))
@@ -115,8 +130,11 @@ func DeleteCommand(prv *services.Provider) http.HandlerFunc {
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Can't remove the database entry!"))
+			log.Error(err)
 			return
 		}
+
+		prv.ReloadCommands <- true
 
 		w.WriteHeader(http.StatusOK)
 	}

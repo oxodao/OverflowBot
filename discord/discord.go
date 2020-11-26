@@ -2,6 +2,7 @@ package discord
 
 import (
 	"github.com/bwmarrin/discordgo"
+	"github.com/oxodao/overflow-bot/log"
 	"github.com/oxodao/overflow-bot/services"
 )
 
@@ -42,10 +43,19 @@ func Initialize(prv *services.Provider) error {
 	}
 
 	RegisterCommands()
-	err = RegisterCustomCommands(prv)
-	if err != nil {
-		return err
-	}
+
+	go func() {
+		for {
+			err = RegisterCustomCommands(prv)
+			if err != nil {
+				log.Error(err)
+			} else {
+				log.Normal("Custom commands reloaded successfully")
+			}
+
+			<-prv.ReloadCommands
+		}
+	}()
 
 	prv.Discord = discord
 	discord.AddHandler(CommandHandler(prv))

@@ -12,10 +12,11 @@ import (
 )
 
 type Provider struct {
-	Config   *config.Config
-	Software *software
-	DB       *sqlx.DB
-	Discord  *discordgo.Session
+	Config         *config.Config
+	Software       *software
+	DB             *sqlx.DB
+	Discord        *discordgo.Session
+	ReloadCommands chan (bool)
 }
 
 type software struct {
@@ -36,6 +37,7 @@ func NewProvider(cfg *config.Config, version, author string) (*Provider, error) 
 			Author:  author,
 			Version: version,
 		},
-		DB: db,
+		DB:             db,
+		ReloadCommands: make(chan bool),
 	}, nil
 }

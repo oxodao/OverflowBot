@@ -8,6 +8,7 @@ import (
 
 	"github.com/oxodao/overflow-bot/config"
 	"github.com/oxodao/overflow-bot/discord"
+	"github.com/oxodao/overflow-bot/log"
 	"github.com/oxodao/overflow-bot/services"
 	"github.com/oxodao/overflow-bot/web"
 )
@@ -18,7 +19,7 @@ const (
 )
 
 func main() {
-	fmt.Printf("Overflow Bot [v.%s] by %s\n", VERSION, AUTHOR)
+	log.Normal(fmt.Sprintf("Overflow Bot [v.%s] by %s\n", VERSION, AUTHOR))
 	cfg, err := config.Load()
 	if err != nil {
 		panic(err)
@@ -32,13 +33,13 @@ func main() {
 	if len(cfg.Discord.Token) > 0 {
 		err := discord.Initialize(prv)
 		if err != nil {
-			fmt.Println("Could not connect to discord: ", err)
+			log.Error(err)
 		}
 	}
 
 	go web.Initialize(prv)
 
-	fmt.Println("OverflowBot is connected.\nCTRL-C to exit.")
+	log.Normal("OverflowBot is connected.\nCTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc

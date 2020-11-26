@@ -4,7 +4,7 @@ COPY frontend/ ./
 RUN yarn install
 RUN yarn build
 
-FROM golang:alpine as build-backend
+FROM golang:1.15.5-buster as build-backend
 
 ENV GO111MODULE=on \
     GOOS=linux \
@@ -20,7 +20,7 @@ RUN pkger -include github.com/oxodao/overflow-bot:/frontend/dist
 RUN apk add build-base
 RUN go build -o overflow-bot
 
-FROM alpine
+FROM debian:buster
 WORKDIR /app
 COPY --from=build-backend /app/overflow-bot /app/overflow-bot
 ENTRYPOINT ["/app/overflow-bot"]
